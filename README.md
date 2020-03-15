@@ -1,2 +1,9 @@
-# scrabble
-Program to count points at Scrabble
+scrabble
+=====
+
+An OTP application
+
+Build
+-----
+
+    $ rebar3 compile

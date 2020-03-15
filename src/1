@@ -1,0 +1,67 @@
+-module(scrabble).
+-behaviour(gen_server).
+
+-export([start_link/0, register_player/2, return_player/2, finish_game/1]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
+
+-record(player, {name}).
+
+%%%============================================================
+%%% Client API
+
+start_link() ->
+    	gen_server:start_link(?MODULE, [], []).
+
+%% Synchronous call
+register_player(Pid, Name) ->
+   gen_server:call(Pid, {order, Name}).
+
+%% This call is asynchronous
+return_player(Pid, Player = #player{}) ->
+    gen_server:cast(Pid, {return, Player}).
+
+%% Synchronous call
+finish_game(Pid) ->
+    gen_server:call(Pid, terminate).
+
+%%%============================================================
+%%% Server functions
+
+init([]) -> {ok, []}. %% no treatment of info here!
+
+
+handle_call({order, Name}, _From, Players) ->
+       	Players =/= [] ->
+        	{reply, Players, lists:append([Name],Players)};
+handle_call(terminate, _From, Players) ->
+    	{stop, normal, ok, Players}.
+
+handle_cast({return, Player = #player{}}, Players) ->
+    	{noreply, [Player|Players]}.
+
+handle_info(Msg, Players) ->
+    	io:format("Unexpected message: ~p~n",[Msg]),
+    	{noreply, Players}.
+
+terminate(normal, Players) ->
+    	[io:format("~p was set free.~n",[C#player.name]) || C <- Players],
+    	ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    	%% No change planned. The function is there for the behaviour,
+    	%% but will not be used. Only a version on the next
+    	{ok, State}. 
+
+%%%============================================================
+%%% Private functions
+
+make_player(Name) ->
+    	#player{name=Name}.
+
+add_player(Name,Players) ->
+	%%{ok, Name} = io:read("Enter your name: "),
+	%%io:format("You have registered ~p~n",[Name]),
+	%%Players = [Name | []],
+	%%io:format("Players are now ~p~n",[Players]).
+	Players.
