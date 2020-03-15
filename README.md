@@ -3,7 +3,14 @@ scrabble
 
 An OTP application
 
-Build
------
 
-    $ rebar3 compile
+Compile:
+rebar3 compile 
+
+Run it:
+rebar3 shell
+
+Start the game:
+play:game().
+
+Enjoy!
