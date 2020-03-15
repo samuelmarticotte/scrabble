@@ -5,6 +5,7 @@
 	register_player/1,
 	register_player/2, 
 	add_points/2,
+	get_points/1,
 	cheer_player/2,
 	return_player/2, 
 	play/1,
@@ -38,6 +39,9 @@ play(Pid) ->
 add_points(Pid,Points) ->
 	gen_server:call(Pid,{add,Points}).
 
+get_points(Pid)->
+	gen_server:call(Pid,{get_points}).
+
 cheer_player(Pid,Points) ->
 	gen_server:call(Pid,{cheer,Points}).
 
@@ -65,6 +69,9 @@ handle_call({add,Points},_From,Player) ->
 	NewPoints = Points + Player#player.points,
 	NewPlayer = Player#player{points=NewPoints},
 	{reply,NewPlayer,NewPlayer};	
+
+handle_call({get_points},_From,Player) ->
+	{reply,Player#player.points,Player};
 
 handle_call({cheer,Points},_From,Player) ->
 	if Points > 10 -> [io:format("Amazing ~p! ~p~n",[Player#player.name,X])
