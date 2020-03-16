@@ -12,31 +12,24 @@ game() ->
 	io:format("--------------------~n"),
 	
 	%Register players
-	Register = fun(Name, {Players,Pids}) -> 
+	Register = fun(Name) -> 
 		{ok,Pid} = player:start_link(),
 		Player = player:register_player(Pid,Name),
-		{[Player|Players],[Pid|Pids]}
+		{Player,Pid}
 	end,
-	%Show all players
-	{Players,PPids} = lists:foldl(Register, {[],[]},
-					["Dennis","Alexia","Igor","Sam"]),
+	%Show all players and get started!
+	Players = [Register(N) || N <- ["Dennis","Alexia","Igor","Sam"]],
 		
 	%Start turns (loop)
-	take_turns(Players,PPids).
+	take_turns(Players).
 
 
 
 %%%%============================================================
 %%%% All player take turns, then a new round starts
-take_turns(AllPlayers,AllPids) ->
-	DoTurns = fun
-		Recur([],[]) -> ok;
-		Recur([Ply|RestPlayers], [Pid|RestPids]) ->
-			take_turn(Ply,Pid),
-			Recur(RestPlayers,RestPids)
-	end,
-	DoTurns(AllPlayers,AllPids),
-	take_turns(AllPlayers,AllPids).
+take_turns(PlayInfo) ->
+	[take_turn(Ply,Pid) || {Ply,Pid} <- PlayInfo],
+	take_turns(PlayInfo).
 
 
 %%%%============================================================
